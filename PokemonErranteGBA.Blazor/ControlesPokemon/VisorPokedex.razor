@@ -1,0 +1,30 @@
+﻿
+    <div class="@ClassList">
+        @if (Pokedex != null)
+        {
+            @if (Pokedex.Count == 0)
+            {
+                <text>No hay pokemon a mostrar</text>
+            }
+            else
+            {
+                @for (int i = First, j = 0; j < NumeroAVer&&i+j<Pokedex.Count; j++, i++)
+                {
+                    <VisorPokemon Pokemon="@Pokedex[i]" OnClick="@OnClick" Class="@ClassItem" />
+                }
+            }
+        }
+        else
+        {
+            <text>Es necesario poner una lista de pokemon</text>
+        }
+
+    </div>
+@code {
+    [Parameter]public EventCallback<PokemonCompleto> OnClick { get; set; }
+    [Parameter] public IList<PokemonCompleto> Pokedex { get; set; }
+    [Parameter] public int NumeroAVer { get; set; } = 1;
+    [Parameter] public int First { get; set; } = 0;
+    [Parameter] public string ClassList { get; set; } = "";
+    [Parameter] public string ClassItem { get; set; } = "";
+}

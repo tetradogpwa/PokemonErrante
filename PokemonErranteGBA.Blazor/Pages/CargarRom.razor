@@ -1,0 +1,35 @@
+﻿@page "/CargarRom"
+
+@using Blazor.FileReader
+
+@inject IFileReaderService fileReaderService
+@inject IJSRuntime JS
+<h3>Cargar Rom</h3>
+<input type="file" @ref="inpCargarRom" @onchange="CargarRomMethod" accept=".gba" />
+
+@code {
+    [CascadingParameter] RomPokemon Rom { get; set; }
+    ElementReference inpCargarRom;
+    async Task CargarRomMethod()
+    {
+        const int BUFFER = 40 * 1024;
+
+        foreach (IFileReference file in await fileReaderService.CreateReference(inpCargarRom).EnumerateFilesAsync())
+        {
+            Rom.Rom = new RomGba(await file.Read(BUFFER));
+
+            if (!PokemonErrante.EsCompatible(EdicionPokemon.GetEdicionPokemon(Rom.Rom), Rom.Rom.Edicion.Compilacion))
+            {
+                Rom.Rom = null;
+                await JS.MostrarMensajeAsync("La rom no es compatible");
+              
+            }
+            else
+            {
+                Console.WriteLine("Se ha cargado la rom correctamente");
+            }
+
+        }
+    }
+
+}
