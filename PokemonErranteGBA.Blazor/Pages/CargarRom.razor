@@ -12,7 +12,7 @@
     ElementReference inpCargarRom;
     async Task CargarRomMethod()
     {
-        const int BUFFER = 40 * 1024;
+        const int BUFFER = 400 * 1024;
 
         foreach (IFileReference file in await fileReaderService.CreateReference(inpCargarRom).EnumerateFilesAsync())
         {
