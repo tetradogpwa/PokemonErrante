@@ -1,25 +1,38 @@
 ﻿@page "/"
+@using System.Threading.Tasks
+@if (Rom.EstaCargado)
+{<div @onkeypress="@((KeyboardEventArgs k)=> { if (k.Key == "Left") First += 10; else if (k.Key == "Right") First -= 10; else if (k.Key == "Up") First--; else if (k.Key == "Down") First++; if (First < 0) First = Rom.ImagenesPokemon.Count - 1; else if (First >= Rom.ImagenesPokemon.Count) First = 0; })">
+        <VisorImagenes Items="Rom.ImagenesPokemon" ConvertToBitmap="@((PokemonGBAFramework.Pokemon.Sprites.Frontales f)=>f.Imagenes[0])" OnClick="@((PokemonGBAFramework.Pokemon.Sprites.Frontales frontales)=> { PokemonErrante.Pokemon = Rom.ImagenesPokemon.IndexOf(frontales); })" First="@First" />
 
-@if (Rom.EstaCargada)
-{<div @onkeypress="@((KeyboardEventArgs k)=> { if (k.Key == "Left") First += 10; else if (k.Key == "Right") First -= 10; else if (k.Key == "Up") First--; else if (k.Key == "Down") First++; if (First < 0) First = Rom.Pokedex.Count - 1; else if (First >= Rom.Pokedex.Count) First = 0; })">
-        <VisorPokedex Pokedex="Rom.Pokedex" OnClick="@((PokemonCompleto pokemon)=> {if(PokemonErrante!=null) PokemonErrante.PokemonErrante = pokemon; })" First="@First" />
-
-        @if (PokemonErrante!=null&&PokemonErrante.PokemonErrante != null)
+        @if (PokemonErrante != null)
         {
             <div>
                 <div>Nivel: <input type="number" @bind="PokemonErrante.Nivel" /></div>
-                <div>Vida: <input type="number" @bind="PokemonErrante.Vida" />/@PokemonErrante.PokemonErrante.Stats.CalculaHp(PokemonErrante.Nivel)</div>
+                <div>Vida: <input type="number" @bind="PokemonErrante.Vida" />/@Rom.StatsPokemon[PokemonErrante.Pokemon].CalculaHp(PokemonErrante.Nivel)</div>
                 <div>Turnos: <input type="number" @bind="PokemonErrante.TurnosDormido" /><VisorEstado Estado="PokemonGBAFrameWork.PokemonErrante.Pokemon.Stat.Dormido" /></div>
                 @foreach (PokemonGBAFrameWork.PokemonErrante.Pokemon.Stat estado in Enum.GetValues(typeof(PokemonErrante.Pokemon.Stat)))
                 {
                     @if (estado != PokemonGBAFrameWork.PokemonErrante.Pokemon.Stat.Dormido)
                     {
-                        <VisorEstado Estado="estado" OnClick="@((bool seleccionado)=> { PokemonErrante.SetStatNoDormido(estado,seleccionado); })" />
+                        <VisorEstado Estado="estado" OnClick="@((bool seleccionado)=> {
+                                                                    switch (estado)
+                                                                    {
+                                                                        case PokemonGBAFrameWork.PokemonErrante.Pokemon.Stat.Congelado:PokemonErrante.Congelado = seleccionado;break;
+                                                                       case PokemonGBAFrameWork.PokemonErrante.Pokemon.Stat.Quemado:PokemonErrante.Quemado = seleccionado;break;
+
+                                                                               case PokemonGBAFrameWork.PokemonErrante.Pokemon.Stat.Paralizado:PokemonErrante.Paralizado = seleccionado;break;
+
+                                                                               case PokemonGBAFrameWork.PokemonErrante.Pokemon.Stat.Envenenado:PokemonErrante.Envenenado = seleccionado;break;
+                                                                  case PokemonGBAFrameWork.PokemonErrante.Pokemon.Stat.EnvenenamientoGrave:PokemonErrante.EnvenenadoGrave = seleccionado;break;
+
+                                                                    }
+
+                                                                })" />
                     }
                 }
-                <div>
-                 @PokemonGBAFrameWork.PokemonErrante.Pokemon.GetScript(Rom.Rom.Edicion, PokemonErrante).GetDeclaracionXSE($"PokemonErrante{PokemonErrante.PokemonErrante.Nombre.Texto}")
-                </div>
+                @*<div>
+                     @PokemonGBAFrameWork.PokemonErrante.Pokemon.GetScript(Rom.Rom.Edicion, PokemonErrante).GetDeclaracionXSE($"PokemonErrante{PokemonErrante.PokemonErrante.Nombre.Texto}")
+                    </div>*@
             </div>
         }
     </div>
@@ -30,7 +43,7 @@ else
 }
 @code{
     [CascadingParameter] RomPokemon Rom { get; set; }
-    PokemonErrante.Pokemon PokemonErrante = null;// new PokemonErrante.Pokemon();
+    PokemonGBAFramework.Eventos.PokemonErrante PokemonErrante = new PokemonGBAFramework.Eventos.PokemonErrante();// new PokemonErrante.Pokemon();
     int First = 0;
 
 

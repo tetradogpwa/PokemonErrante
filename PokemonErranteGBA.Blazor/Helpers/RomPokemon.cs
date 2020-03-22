@@ -8,20 +8,8 @@ namespace PokemonErranteGBA.Blazor2.Helpers
 {
     public class RomPokemon
     {
-        IList<PokemonCompleto> pokedex = null;
-        private RomGba rom;
-
-        public RomGba Rom { get => rom; set { rom = value; pokedex = null; } }
-        public bool EstaCargada => Rom != null;
-        public IList<PokemonCompleto> Pokedex
-        {
-
-            get
-            {
-                if (pokedex == null)
-                    pokedex = PokemonCompleto.GetPokedex(Rom);
-                return pokedex;
-            }
-        }
+        public List<PokemonGBAFramework.Pokemon.Sprites.Frontales> ImagenesPokemon { get; set; }
+        public List<PokemonGBAFramework.Pokemon.StatsPokemon> StatsPokemon { get; set; }
+        public bool EstaCargado => ImagenesPokemon != null;
     }
 }

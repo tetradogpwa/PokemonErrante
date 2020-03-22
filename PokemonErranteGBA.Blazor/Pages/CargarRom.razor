@@ -13,20 +13,25 @@
     async Task CargarRomMethod()
     {
         const int BUFFER = 400 * 1024;
-
+        RomGba rom;
         foreach (IFileReference file in await fileReaderService.CreateReference(inpCargarRom).EnumerateFilesAsync())
         {
-            Rom.Rom = new RomGba(await file.Read(BUFFER));
+            rom = new RomGba(await file.Read(BUFFER));
 
-            if (!PokemonErrante.EsCompatible(EdicionPokemon.GetEdicionPokemon(Rom.Rom), Rom.Rom.Edicion.Compilacion))
+            if (!PokemonErrante.EsCompatible(EdicionPokemon.GetEdicionPokemon(rom), rom.Edicion.Compilacion))
             {
-                Rom.Rom = null;
+                Rom= null;
                 await JS.MostrarMensajeAsync("La rom no es compatible");
-              
+
             }
             else
             {
+                Rom = new RomPokemon();
+                Rom.ImagenesPokemon = PokemonGBAFrameWork.Pokemon.Sprite.Frontales.GetFrontales(rom).ElementosNuevos.Select((f) => PokemonGBAFramework.Pokemon.Sprites.Frontales.Serializador.GetObject(f.Value.Data) as PokemonGBAFramework.Pokemon.Sprites.Frontales).ToList();
+                Rom.StatsPokemon = PokemonGBAFrameWork.Pokemon.Stats.GetStats(rom).ElementosNuevos.Select((s) => PokemonGBAFramework.Pokemon.StatsPokemon.Serializador.GetObject(s.Value.Data) as PokemonGBAFramework.Pokemon.StatsPokemon).ToList();
+               
                 Console.WriteLine("Se ha cargado la rom correctamente");
+
             }
 
         }
