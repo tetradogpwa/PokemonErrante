@@ -14,9 +14,8 @@ namespace PokemonErranteGBA.Blazor2
         {
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.RootComponents.Add<App>("app");
-            builder.Services.AddFileReaderService(options => options.InitializeOnFirstCall = true);
-
-
+            builder.Services.AddFileReaderService(options => { options.InitializeOnFirstCall = true;options.UseWasmSharedBuffer = true;/*con esta opción carga rapido :D*/});
+            
             await builder.Build().RunAsync();
         }
     }

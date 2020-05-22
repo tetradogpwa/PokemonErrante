@@ -1,38 +1,35 @@
 ﻿@page "/"
 @using System.Threading.Tasks
 @if (Rom.EstaCargado)
-{<div @onkeypress="@((KeyboardEventArgs k)=> { if (k.Key == "Left") First += 10; else if (k.Key == "Right") First -= 10; else if (k.Key == "Up") First--; else if (k.Key == "Down") First++; if (First < 0) First = Rom.ImagenesPokemon.Count - 1; else if (First >= Rom.ImagenesPokemon.Count) First = 0; })">
-        <VisorImagenes Items="Rom.ImagenesPokemon" ConvertToBitmap="@((PokemonGBAFramework.Pokemon.Sprites.Frontales f)=>f.Imagenes[0])" OnClick="@((PokemonGBAFramework.Pokemon.Sprites.Frontales frontales)=> { PokemonErrante.Pokemon = Rom.ImagenesPokemon.IndexOf(frontales); })" First="@First" />
+{<div @onkeypress="OnKeyPress">
+        <VisorImagenes Items="Rom.Pokemon" ConvertToBitmap="@((PokemonGBAFramework.Core.Pokemon p)=>p.Sprites.Frontales.Sprites[0])" OnClick="@((PokemonGBAFramework.Core.Pokemon pokemon)=> { Pokemon.Errante =pokemon; })" First="@First" />
 
-        @if (PokemonErrante != null)
+        @if (Pokemon != default)
         {
             <div>
-                <div>Nivel: <input type="number" @bind="PokemonErrante.Nivel" /></div>
-                <div>Vida: <input type="number" @bind="PokemonErrante.Vida" />/@Rom.StatsPokemon[PokemonErrante.Pokemon].CalculaHp(PokemonErrante.Nivel)</div>
-                <div>Turnos: <input type="number" @bind="PokemonErrante.TurnosDormido" /><VisorEstado Estado="PokemonGBAFrameWork.PokemonErrante.Pokemon.Stat.Dormido" /></div>
-                @foreach (PokemonGBAFrameWork.PokemonErrante.Pokemon.Stat estado in Enum.GetValues(typeof(PokemonErrante.Pokemon.Stat)))
+                <div>Nivel: <input type="number" @bind="Pokemon.Nivel" /></div>
+                <div>Vida: <input type="number" @bind="Pokemon.Vida" />/@Pokemon.Errante.Stats.CalculaHp((int)(ushort)Pokemon.Nivel)</div>
+                <div>Turnos: <input type="number" @bind="Pokemon.TurnosDormido" /><VisorEstado Estado="Dormido" /></div>
+                @foreach (string estado in stats)
                 {
-                    @if (estado != PokemonGBAFrameWork.PokemonErrante.Pokemon.Stat.Dormido)
-                    {
-                        <VisorEstado Estado="estado" OnClick="@((bool seleccionado)=> {
-                                                                    switch (estado)
-                                                                    {
-                                                                        case PokemonGBAFrameWork.PokemonErrante.Pokemon.Stat.Congelado:PokemonErrante.Congelado = seleccionado;break;
-                                                                       case PokemonGBAFrameWork.PokemonErrante.Pokemon.Stat.Quemado:PokemonErrante.Quemado = seleccionado;break;
 
-                                                                               case PokemonGBAFrameWork.PokemonErrante.Pokemon.Stat.Paralizado:PokemonErrante.Paralizado = seleccionado;break;
+                    <VisorEstado Estado="estado" OnClick="@((bool seleccionado)=> {
+                                                                switch (estado)
+                                                                {
+                                                                    case "Congelado":Pokemon.Congelado = seleccionado;break;
+                                                                    case "Quemado":Pokemon.Quemado = seleccionado;break;
+                                                                    case "Paralizado":Pokemon.Paralizado = seleccionado;break;
+                                                                    case "Envenenado":Pokemon.Envenenado = seleccionado;break;
+                                                                    case "EnvenadoGrave":Pokemon.EnvenenadoGrave = seleccionado;break;
 
-                                                                               case PokemonGBAFrameWork.PokemonErrante.Pokemon.Stat.Envenenado:PokemonErrante.Envenenado = seleccionado;break;
-                                                                  case PokemonGBAFrameWork.PokemonErrante.Pokemon.Stat.EnvenenamientoGrave:PokemonErrante.EnvenenadoGrave = seleccionado;break;
+                                                                }
 
-                                                                    }
+                                                            })" />
 
-                                                                })" />
-                    }
                 }
-                @*<div>
-                     @PokemonGBAFrameWork.PokemonErrante.Pokemon.GetScript(Rom.Rom.Edicion, PokemonErrante).GetDeclaracionXSE($"PokemonErrante{PokemonErrante.PokemonErrante.Nombre.Texto}")
-                    </div>*@
+                <div>
+                    @PokemonErrante.GetScript(Rom.Edicion, Pokemon).GetDeclaracionXSE($"Pokemon{Pokemon.Errante.Nombre}Errante")
+                </div>
             </div>
         }
     </div>
@@ -43,8 +40,24 @@ else
 }
 @code{
     [CascadingParameter] RomPokemon Rom { get; set; }
-    PokemonGBAFramework.Eventos.PokemonErrante PokemonErrante = new PokemonGBAFramework.Eventos.PokemonErrante();// new PokemonErrante.Pokemon();
+    PokemonErrante.Pokemon Pokemon { get; set; } = new PokemonErrante.Pokemon();
     int First = 0;
+    string[] stats = { "Quemado", "Congelado", "Paralizado", "Envenenado", "EnvenadoGrave" };
 
+    void OnKeyPress(KeyboardEventArgs k)
+    {
+        if (k.Key == "Left")
+            First += 10;
+        else if (k.Key == "Right")
+            First -= 10;
+        else if (k.Key == "Up")
+            First--;
+        else if (k.Key == "Down")
+            First++;
 
+        if (First < 0)
+            First = Rom.Pokemon.Count - 1;
+        else if (First >= Rom.Pokemon.Count)
+            First = 0;
+    }
 }

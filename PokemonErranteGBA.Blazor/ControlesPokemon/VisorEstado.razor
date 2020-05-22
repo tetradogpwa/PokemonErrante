@@ -2,7 +2,7 @@
 
 @code {
     [Parameter] public string Class { get; set; }
-    [Parameter] public PokemonGBAFrameWork.PokemonErrante.Pokemon.Stat Estado { get; set; }
+    [Parameter] public string Estado { get; set; }
     [Parameter]public EventCallback<bool> OnClick { get; set; }
     [Parameter]public bool Seleccionado { get; set; }
     string SrcImg
@@ -10,7 +10,7 @@
         get
         {
             string strSeleccionado = Seleccionado ? "" : "-Off";
-            return $"~/Imagenes/{Estado.ToString()}{strSeleccionado}.png";
+            return $"~/Imagenes/{Estado}{strSeleccionado}.png";
 
         }
     }
